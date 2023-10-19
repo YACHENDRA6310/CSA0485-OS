@@ -1,0 +1,50 @@
+#include <stdio.h>
+#include <stdlib.h>
+int main() {
+    int n, start, end;
+    printf("Enter the number of disk requests: ");
+    scanf("%d", &n);
+    if (n <= 0) {
+        printf("Invalid number of requests.\n");
+        return 1;
+    }
+    printf("Enter the start position of the disk arm: ");
+    scanf("%d", &start);
+    printf("Enter the end position of the disk: ");
+    scanf("%d", &end);
+    int requests[n];
+    printf("Enter the disk request queue:\n");
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &requests[i]);
+    }
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (requests[j] > requests[j + 1]) {
+                int temp = requests[j];
+                requests[j] = requests[j + 1];
+                requests[j + 1] = temp;
+            }
+        }
+    }
+    int seek_time = 0;
+    int current_position = start;
+    int direction = 1; 
+    for (int i = 0; i < n; i++) {
+        while (requests[i] > current_position && direction == 1) {
+            current_position++;
+            seek_time++;
+        }
+        while (requests[i] < current_position && direction == -1) {
+            current_position--;
+            seek_time++;
+        }
+        if (requests[i] == current_position) {
+            continue;
+        }
+        if (current_position == end || current_position == 0) {
+            direction *= -1;
+        }
+    }
+    printf("Total seek time: %d\n", seek_time);
+    return 0;
+}
