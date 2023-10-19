@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_BLOCKS 100
+struct Block {
+    int data;
+    struct Block* next;
+};
+struct File {
+    struct Block* first_block;
+    struct Block* last_block;
+    int size;
+};
+struct Directory {
+    struct File files[MAX_BLOCKS];
+    int file_count;
+};
+void initDirectory(struct Directory* dir) {
+    dir->file_count = 0;
+}
+void createFile(struct Directory* dir) {
+    if (dir->file_count < MAX_BLOCKS) {
+        struct File* newFile = &dir->files[dir->file_count];
+        newFile->first_block = NULL;
+        newFile->last_block = NULL;
+        newFile->size = 0;
+        dir->file_count++;
+        printf("File created successfully.\n");
+    } else {
+        printf("Directory is full. Cannot create more files.\n");
+    }
+}
+void addBlock(struct File* file, int data) {
+    struct Block* newBlock = (struct Block*)malloc(sizeof(struct Block));
+    newBlock->data = data;
+    newBlock->next = NULL;  
+    if (file->last_block == NULL) {
+        file->first_block = newBlock;
+        file->last_block = newBlock;
+    } else {
+        file->last_block->next = newBlock;
+        file->last_block = newBlock;
+    }
+    file->size++;
+}
+void displayFile(struct File* file) {
+    struct Block* current = file->first_block;
+    printf("File contents: ");
+    while (current != NULL) {
+        printf("%d ", current->data);
+        current = current->next;
+    }
+    printf("\n");
+}
+int main() {
+    struct Directory dir;
+    initDirectory(&dir);  
+    int choice;
+    int data;
+    int file_index;
+    while (1) {
+        printf("\n1. Create a new file\n2. Add a block to a file\n3. Display a file\n4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);        
+        switch (choice) {
+            case 1:
+                createFile(&dir);
+                break;
+            case 2:
+                printf("Enter the file index (0-%d): ", dir.file_count - 1);
+                scanf("%d", &file_index);
+                if (file_index < 0 || file_index >= dir.file_count) {
+                    printf("Invalid file index.\n");
+                } else {
+                    printf("Enter data for the block: ");
+                    scanf("%d", &data);
+                    addBlock(&dir.files[file_index], data);
+                }
+                break;
+            case 3:
+                printf("Enter the file index (0-%d): ", dir.file_count - 1);
+                scanf("%d", &file_index);
+                if (file_index < 0 || file_index >= dir.file_count) {
+                    printf("Invalid file index.\n");
+                } else {
+                    displayFile(&dir.files[file_index]);
+                }
+                break;
+            case 4:
+                for (int i = 0; i < dir.file_count; i++) {
+                    struct Block* current = dir.files[i].first_block;
+                    while (current != NULL) {
+                        struct Block* temp = current;
+                        current = current->next;
+                        free(temp);
+                    }
+                }
+                return 0;
+            default:
+                printf("Invalid choice. Try again.\n");
+        }
+    }
+}
