@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_RECORDS 100
+
+struct File {
+    char records[MAX_RECORDS][256]; // Assuming a record size of 256 bytes
+    int record_count;
+};
+
+struct Directory {
+    struct File files[MAX_RECORDS];
+    int file_count;
+};
+
+void initDirectory(struct Directory* dir) {
+    dir->file_count = 0;
+}
+
+void createFile(struct Directory* dir) {
+    if (dir->file_count < MAX_RECORDS) {
+        struct File* newFile = &dir->files[dir->file_count];
+        newFile->record_count = 0;
+        dir->file_count++;
+        printf("File created successfully.\n");
+    } else {
+        printf("Directory is full. Cannot create more files.\n");
+    }
+}
+
+void addRecord(struct File* file, const char* record) {
+    if (file->record_count < MAX_RECORDS) {
+        if (record != NULL) {
+(file->records[file->record_count], record);
+            file->record_count++;
+            printf("Record added to the file.\n");
+        } else {
+            printf("Invalid record. Record not added to the file.\n");
+        }
+    } else {
+        printf("File is full. Cannot add more records.\n");
+    }
+}
+
+void displayFile(struct File* file) {
+    printf("File contents:\n");
+    for (int i = 0; i < file->record_count; i++) {
+        printf("%d: %s\n", i + 1, file->records[i]);
+    }
+}
+
+int main() {
+    struct Directory dir;
+    initDirectory(&dir);
+
+    int choice;
+    char record[256];
+    int file_index;
+
+    while (1) {
+        printf("\n1. Create a new file\n2. Add a record to a file\n3. Display a file\n4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                createFile(&dir);
+                break;
+            case 2:
+                printf("Enter the file index (0-%d): ", dir.file_count - 1);
+                scanf("%d", &file_index);
+                if (file_index < 0 || file_index >= dir.file_count) {
+                    printf("Invalid file index.\n");
+                } else {
+                    printf("Enter the record to add: ");
+                    scanf(" %[^\n]", record);
+                    addRecord(&dir.files[file_index], record);
+                }
+                break;
+            case 3:
+                printf("Enter the file index (0-%d): ", dir.file_count - 1);
+                scanf("%d", &file_index);
+                if (file_index < 0 || file_index >= dir.file_count) {
+                    printf("Invalid file index.\n");
+                } else {
+                    displayFile(&dir.files[file_index]);
+                }
+                break;
+            case 4:
+                return 0;
+            default:
+                printf("Invalid choice. Try again.\n");
+        }
+    }
+}
